@@ -1,0 +1,33 @@
+{% extends 'finance_app/base.html' %}
+{% block title %}Login | Finance Tracker{% endblock %}
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-panel auth-panel--feature">
+        <p class="eyebrow">Welcome Back</p>
+        <h1>Sign in to your finance workspace</h1>
+        <p class="hero-copy">Access your transaction history, monthly reports, and budget monitoring tools from one secure dashboard.</p>
+        <ul class="auth-benefits">
+            <li>Review income and expenses in one place.</li>
+            <li>Track budgets with a polished reporting workflow.</li>
+            <li>Reset your password anytime if you lose access.</li>
+        </ul>
+    </div>
+    <div class="auth-panel auth-panel--form">
+        <div class="panel-heading">
+            <div>
+                <p class="eyebrow">Account Access</p>
+                <h2>Login</h2>
+            </div>
+        </div>
+        <form method="post" class="form-card auth-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+        <div class="auth-links">
+            <a href="{% url 'finance_app:password_reset' %}">Forgot password?</a>
+            <span>New here? <a href="{% url 'finance_app:register' %}">Create an account</a></span>
+        </div>
+    </div>
+</section>
+{% endblock %}

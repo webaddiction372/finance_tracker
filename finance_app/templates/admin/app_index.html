@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="admin-panel admin-panel--single">
+    <div class="admin-panel__header">
+        <div>
+            <p class="admin-kicker">Application Area</p>
+            <h1>{{ app_label|capfirst }}</h1>
+        </div>
+    </div>
+    <div class="admin-app-list">
+        {% for app in app_list %}
+            {% for model in app.models %}
+                <article class="admin-app-card">
+                    <header>
+                        <h3>{{ model.name }}</h3>
+                    </header>
+                    <ul>
+                        <li>
+                            <span>Open management</span>
+                            <div class="admin-app-card__links">
+                                {% if model.admin_url %}<a href="{{ model.admin_url }}">View</a>{% endif %}
+                                {% if model.add_url %}<a href="{{ model.add_url }}">Add</a>{% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                </article>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

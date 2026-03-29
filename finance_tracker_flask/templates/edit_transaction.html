@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Edit Transaction</h2>
+<form method="POST">
+    <label>Type:</label>
+    <select name="type">
+        <option value="Income" {% if transaction.type=='Income' %}selected{% endif %}>Income</option>
+        <option value="Expense" {% if transaction.type=='Expense' %}selected{% endif %}>Expense</option>
+    </select><br>
+
+    <label>Amount:</label>
+    <input type="number" name="amount" value="{{ transaction.amount }}"><br>
+
+    <label>Category:</label>
+    <input type="text" name="category" value="{{ transaction.category }}"><br>
+
+    <label>Date:</label>
+    <input type="date" name="date" value="{{ transaction.date }}"><br>
+
+    <label>Description:</label>
+    <input type="text" name="description" value="{{ transaction.description }}"><br>
+
+    <button type="submit" class="btn">Update</button>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-cancel">Cancel</a>
+</form>
+{% endblock %}

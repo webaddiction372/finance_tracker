@@ -1,0 +1,128 @@
+{% extends 'finance_app/base.html' %}
+{% block title %}{{ title|default:'Transaction' }} | Finance Tracker{% endblock %}
+{% block content %}
+<section class="panel form-panel">
+    <div class="panel-heading">
+        <div>
+            <p class="eyebrow">Data Entry</p>
+            <h1>{{ title|default:'Transaction' }}</h1>
+            <p class="hero-copy">Capture accurate finance records with a clean, structured form.</p>
+        </div>
+    </div>
+    {% if form.is_income %}
+        <form method="post" class="form-card transaction-entry-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <ul class="errorlist">{{ form.non_field_errors }}</ul>
+            {% endif %}
+
+            <div class="transaction-mode-switch" data-mode-switch>
+                <div class="transaction-mode-switch__header">
+                    <p class="eyebrow">Entry Type</p>
+                    <h2>Choose what you are recording</h2>
+                </div>
+                <div class="transaction-mode-grid">
+                    <button type="button" class="transaction-mode-card" data-mode-card="expense">
+                        <span class="transaction-mode-card__label">Expense</span>
+                        <strong>Money going out</strong>
+                        <p>Use this for bills, shopping, subscriptions, travel, and other spending.</p>
+                    </button>
+                    <button type="button" class="transaction-mode-card" data-mode-card="income">
+                        <span class="transaction-mode-card__label">Income</span>
+                        <strong>Money coming in</strong>
+                        <p>Use this for salary, refunds, side income, reimbursements, and deposits.</p>
+                    </button>
+                </div>
+                <div class="transaction-mode-hidden">
+                    {{ form.is_income }}
+                </div>
+                {% if form.is_income.errors %}
+                    <ul class="errorlist">{{ form.is_income.errors }}</ul>
+                {% endif %}
+            </div>
+
+            <div class="transaction-form-grid">
+                <p>
+                    {{ form.date.label_tag }}
+                    {{ form.date }}
+                    {% if form.date.errors %}<ul class="errorlist">{{ form.date.errors }}</ul>{% endif %}
+                </p>
+                <p>
+                    {{ form.amount.label_tag }}
+                    {{ form.amount }}
+                    {% if form.amount.help_text %}<span class="helptext">{{ form.amount.help_text }}</span>{% endif %}
+                    {% if form.amount.errors %}<ul class="errorlist">{{ form.amount.errors }}</ul>{% endif %}
+                </p>
+                <p class="transaction-form-grid__full">
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                    {% if form.description.errors %}<ul class="errorlist">{{ form.description.errors }}</ul>{% endif %}
+                </p>
+                <p class="transaction-form-grid__full">
+                    {{ form.category.label_tag }}
+                    {{ form.category }}
+                    {% if form.category.errors %}<ul class="errorlist">{{ form.category.errors }}</ul>{% endif %}
+                </p>
+            </div>
+
+            <div class="actions">
+                <button type="submit">Save</button>
+                <a class="button button-secondary" href="{% url 'finance_app:transaction_list' %}">Cancel</a>
+            </div>
+        </form>
+
+        <script>
+            (function () {
+                const switcher = document.querySelector('[data-mode-switch]');
+                if (!switcher) return;
+
+                const input = switcher.querySelector('input[name="is_income"]');
+                const cards = switcher.querySelectorAll('[data-mode-card]');
+                const categorySelect = document.querySelector('select[name="category"]');
+
+                function updateCards() {
+                    const selectedMode = input.checked ? 'income' : 'expense';
+                    cards.forEach((card) => {
+                        const active = card.getAttribute('data-mode-card') === selectedMode;
+                        card.classList.toggle('is-active', active);
+                    });
+                    if (!categorySelect) return;
+                    const options = categorySelect.querySelectorAll('option');
+                    let hasSelectedVisibleOption = false;
+
+                    options.forEach((option) => {
+                        const optionKind = option.getAttribute('data-kind');
+                        const visible = optionKind === 'all' || optionKind === selectedMode;
+                        option.hidden = !visible;
+                        if (visible && option.selected) {
+                            hasSelectedVisibleOption = true;
+                        }
+                    });
+
+                    if (!hasSelectedVisibleOption) {
+                        categorySelect.value = '';
+                    }
+                }
+
+                cards.forEach((card) => {
+                    card.addEventListener('click', function () {
+                        input.checked = card.getAttribute('data-mode-card') === 'income';
+                        updateCards();
+                    });
+                });
+
+                updateCards();
+            }());
+        </script>
+    {% else %}
+        <form method="post" class="form-card">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="actions">
+                <button type="submit">Save</button>
+                <a class="button button-secondary" href="{% url 'finance_app:transaction_list' %}">Cancel</a>
+            </div>
+        </form>
+    {% endif %}
+</section>
+{% endblock %}

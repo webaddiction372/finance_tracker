@@ -1,0 +1,19 @@
+{% extends 'finance_app/base.html' %}
+{% block title %}Delete Transaction | Finance Tracker{% endblock %}
+{% block content %}
+<section class="panel delete-panel">
+    <div class="panel-heading">
+        <div>
+            <p class="eyebrow">Delete Record</p>
+            <h1>Confirm deletion</h1>
+            <p class="hero-copy">This transaction will be removed from the ledger and monthly reporting views.</p>
+        </div>
+    </div>
+    <p class="delete-copy">Are you sure you want to delete <strong>{{ object }}</strong>?</p>
+    <form method="post" class="actions">
+        {% csrf_token %}
+        <button type="submit" class="button-danger">Yes, delete transaction</button>
+        <a class="button button-secondary" href="{% url 'finance_app:transaction_list' %}">Cancel</a>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'finance_app/base.html' %}
+{% block title %}Register | Finance Tracker{% endblock %}
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-panel auth-panel--feature">
+        <p class="eyebrow">Create Account</p>
+        <h1>Start managing your money professionally</h1>
+        <p class="hero-copy">Set up your account to organize transactions, manage categories, and keep monthly financial reports within reach.</p>
+        <ul class="auth-benefits">
+            <li>Create and edit transactions with a cleaner workflow.</li>
+            <li>Track categories and budgets in one secure app.</li>
+            <li>Receive password reset links through the built-in recovery flow.</li>
+        </ul>
+    </div>
+    <div class="auth-panel auth-panel--form">
+        <div class="panel-heading">
+            <div>
+                <p class="eyebrow">User Setup</p>
+                <h2>Register</h2>
+            </div>
+        </div>
+        <form method="post" class="form-card auth-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Create Account</button>
+        </form>
+        <div class="auth-links">
+            <span>Already have an account? <a href="{% url 'finance_app:login' %}">Login</a></span>
+        </div>
+    </div>
+</section>
+{% endblock %}

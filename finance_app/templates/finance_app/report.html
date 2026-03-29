@@ -1,0 +1,87 @@
+{% extends 'finance_app/base.html' %}
+{% block title %}Monthly Report | Finance Tracker{% endblock %}
+{% block content %}
+<section class="hero-card">
+    <div>
+        <p class="eyebrow">Reporting</p>
+        <h1>{{ target|date:"F Y" }} Performance</h1>
+        <p class="hero-copy">Review monthly totals, category spending, and budget utilization from one place.</p>
+    </div>
+    <form class="compact-filter" method="get">
+        <label>Month
+            <input type="number" name="month" min="1" max="12" value="{{ target|date:'n' }}">
+        </label>
+        <label>Year
+            <input type="number" name="year" min="2000" max="2100" value="{{ target|date:'Y' }}">
+        </label>
+        <button type="submit">Update</button>
+    </form>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span class="stat-label">Income</span>
+        <strong>{{ income_total }}</strong>
+        <p>Total inflow recorded for the selected month.</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">Expenses</span>
+        <strong>{{ expense_total }}</strong>
+        <p>Total outflow recorded for the selected month.</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">Net</span>
+        <strong>{{ net_total }}</strong>
+        <p>Remaining balance after monthly spending.</p>
+    </article>
+</section>
+
+<div class="grid-2">
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <p class="eyebrow">Category Analysis</p>
+                <h2>Spending by category</h2>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Category</th><th class="right">Spent</th></tr></thead>
+                <tbody>
+                {% for row in spending_by_category %}
+                    <tr><td>{{ row.category__name|default:'Uncategorized' }}</td><td class="right">{{ row.total }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="2" class="empty-state">No expenses recorded for this month.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <p class="eyebrow">Budget Monitoring</p>
+                <h2>Budget usage</h2>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Category</th><th class="right">Budget</th><th class="right">Spent</th><th class="right">Used %</th></tr></thead>
+                <tbody>
+                {% for row in budget_usage %}
+                    <tr>
+                        <td>{{ row.category }}</td>
+                        <td class="right">{{ row.budget }}</td>
+                        <td class="right">{{ row.spent }}</td>
+                        <td class="right">{{ row.percent }}%</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="empty-state">No budgets set for this month.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <section class="admin-hero">
+        <div>
+            <p class="admin-kicker">Operations Dashboard</p>
+            <h1>Finance admin control center</h1>
+            <p>Manage transactions, categories, budgets, users, and platform operations from one professional workspace.</p>
+        </div>
+        <div class="admin-hero__meta">
+            <div>
+                <span>Month</span>
+                <strong>{{ dashboard_month|date:"F Y" }}</strong>
+            </div>
+            <div>
+                <span>Income</span>
+                <strong>{{ dashboard_income }}</strong>
+            </div>
+            <div>
+                <span>Expenses</span>
+                <strong>{{ dashboard_expense }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="admin-stat-grid">
+        {% for item in dashboard_stats %}
+            <article class="admin-stat-card">
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
+                <p>{{ item.note }}</p>
+            </article>
+        {% endfor %}
+    </section>
+
+    <div class="admin-grid">
+        <section class="admin-panel">
+            <div class="admin-panel__header">
+                <div>
+                    <p class="admin-kicker">Management</p>
+                    <h2>Available modules</h2>
+                </div>
+            </div>
+            <div class="admin-app-list">
+                {% for app in app_list %}
+                    <article class="admin-app-card">
+                        <header>
+                            <h3>{{ app.name }}</h3>
+                            {% if app.app_url %}<a href="{{ app.app_url }}">Open app</a>{% endif %}
+                        </header>
+                        <ul>
+                            {% for model in app.models %}
+                                <li>
+                                    <span>{{ model.name }}</span>
+                                    <div class="admin-app-card__links">
+                                        {% if model.admin_url %}<a href="{{ model.admin_url }}">View</a>{% endif %}
+                                        {% if model.add_url %}<a href="{{ model.add_url }}">Add</a>{% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="admin-panel">
+            <div class="admin-panel__header">
+                <div>
+                    <p class="admin-kicker">Recent Activity</p>
+                    <h2>Latest transactions</h2>
+                </div>
+                <a href="/admin/finance_app/transaction/">View all</a>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th class="right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in dashboard_recent_transactions %}
+                            <tr>
+                                <td>{{ transaction.date }}</td>
+                                <td>{{ transaction.description }}</td>
+                                <td>{{ transaction.category|default:"Uncategorized" }}</td>
+                                <td>{% if transaction.is_income %}Income{% else %}Expense{% endif %}</td>
+                                <td class="right">{% if transaction.is_income %}+{% else %}-{% endif %}{{ transaction.amount }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5">No transactions available yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <section class="admin-panel">
+        <div class="admin-panel__header">
+            <div>
+                <p class="admin-kicker">Budget Monitoring</p>
+                <h2>Active monthly budgets</h2>
+            </div>
+            <a href="/admin/finance_app/budget/">Manage budgets</a>
+        </div>
+        <div class="admin-budget-grid">
+            {% for budget in dashboard_active_budgets %}
+                <article class="admin-budget-card">
+                    <span>{{ budget.category.name }}</span>
+                    <strong>{{ budget.amount }}</strong>
+                    <p>{{ budget.month|date:"F Y" }}</p>
+                </article>
+            {% empty %}
+                <p class="admin-empty">No budgets configured for the current month.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

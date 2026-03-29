@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Finance Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="/static/finance_app/styles.css">
+</head>
+<body>
+    <div class="page-shell">
+        {% if user.is_authenticated %}
+            <div class="app-layout">
+                <aside class="app-sidebar">
+                    <div class="app-sidebar__top">
+                        <a class="brand" href="{% url 'finance_app:transaction_list' %}">
+                            <span class="brand-mark">FT</span>
+                            <span>
+                                <strong>Finance Tracker</strong>
+                                <small>Budgeting and cashflow oversight</small>
+                            </span>
+                        </a>
+                        <div class="sidebar-user">
+                            <span class="sidebar-user__label">Signed in as</span>
+                            <strong>{{ user.get_username }}</strong>
+                        </div>
+                    </div>
+
+                    <nav class="sidebar-nav" aria-label="Primary">
+                        <a href="{% url 'finance_app:transaction_list' %}" class="{% if request.resolver_match.url_name == 'transaction_list' %}is-active{% endif %}">Overview</a>
+                        <a href="{% url 'finance_app:transaction_create' %}" class="{% if request.resolver_match.url_name == 'transaction_create' or request.resolver_match.url_name == 'transaction_update' %}is-active{% endif %}">New Transaction</a>
+                        <a href="{% url 'finance_app:category_create' %}" class="{% if request.resolver_match.url_name == 'category_create' %}is-active{% endif %}">Category</a>
+                        <a href="{% url 'finance_app:budget_create' %}" class="{% if request.resolver_match.url_name == 'budget_create' %}is-active{% endif %}">Budget</a>
+                        <a href="{% url 'finance_app:report' %}" class="{% if request.resolver_match.url_name == 'report' %}is-active{% endif %}">Reports</a>
+                        <a href="/admin/">Admin</a>
+                    </nav>
+
+                    <section class="theme-panel">
+                        <p class="eyebrow">Theme Selector</p>
+                        <h3>Appearance</h3>
+                        <div class="theme-options">
+                            <button type="button" class="theme-option" data-theme-value="light">Light</button>
+                            <button type="button" class="theme-option" data-theme-value="dark">Dark</button>
+                            <button type="button" class="theme-option" data-theme-value="blue">Blue</button>
+                            <button type="button" class="theme-option" data-theme-value="orange">Orange</button>
+                        </div>
+                    </section>
+
+                    <form method="post" action="{% url 'finance_app:logout' %}" class="sidebar-logout">
+                        {% csrf_token %}
+                        <button type="submit" class="button button-secondary">Logout</button>
+                    </form>
+                </aside>
+
+                <div class="app-main">
+                    <header class="content-header">
+                        <div>
+                            <p class="eyebrow">Workspace</p>
+                            <h2>{% block page_heading %}Finance Tracker{% endblock %}</h2>
+                        </div>
+                    </header>
+                    <main class="page-content page-content--with-sidebar">
+        {% else %}
+            <header class="site-header">
+                <div class="container site-header__inner">
+                    <div>
+                        <a class="brand" href="{% url 'finance_app:login' %}">
+                            <span class="brand-mark">FT</span>
+                            <span>
+                                <strong>Finance Tracker</strong>
+                                <small>Budgeting and cashflow oversight</small>
+                            </span>
+                        </a>
+                    </div>
+                    <nav class="site-nav" aria-label="Primary">
+                        <a href="{% url 'finance_app:login' %}">Login</a>
+                        <a href="{% url 'finance_app:register' %}">Register</a>
+                        <a href="{% url 'finance_app:password_reset' %}">Forgot Password</a>
+                    </nav>
+                </div>
+            </header>
+            <main class="container page-content">
+        {% endif %}
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li class="message {{ message.tags }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% block content %}{% endblock %}
+            </main>
+        {% if user.is_authenticated %}
+                </div>
+            </div>
+        {% else %}
+            <footer class="container site-footer">
+                <p>Finance Tracker dashboard built with Django.</p>
+            </footer>
+        {% endif %}
+    </div>
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const storageKey = 'finance-tracker-theme';
+            const options = document.querySelectorAll('[data-theme-value]');
+            const savedTheme = localStorage.getItem(storageKey) || 'light';
+
+            function setTheme(theme) {
+                root.setAttribute('data-theme', theme);
+                options.forEach((option) => {
+                    option.classList.toggle('is-active', option.getAttribute('data-theme-value') === theme);
+                });
+                localStorage.setItem(storageKey, theme);
+            }
+
+            options.forEach((option) => {
+                option.addEventListener('click', function () {
+                    setTheme(option.getAttribute('data-theme-value'));
+                });
+            });
+
+            setTheme(savedTheme);
+        }());
+    </script>
+</body>
+</html>

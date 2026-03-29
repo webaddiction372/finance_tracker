@@ -1,0 +1,108 @@
+{% extends 'finance_app/base.html' %}
+{% block title %}Transactions | Finance Tracker{% endblock %}
+{% block content %}
+<section class="hero-card">
+    <div>
+        <p class="eyebrow">Workspace Overview</p>
+        <h1>Transactions</h1>
+        <p class="hero-copy">Track income and expenses, review budgets, and keep your monthly cashflow under control.</p>
+    </div>
+    <div class="hero-actions">
+        <a class="button" href="{% url 'finance_app:transaction_create' %}">Add Transaction</a>
+        <a class="button button-secondary" href="{% url 'finance_app:report' %}">Open Reports</a>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span class="stat-label">Transactions</span>
+        <strong>{{ page_obj.paginator.count|default:object_list|length }}</strong>
+        <p>Recorded entries across your ledger.</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">Categories</span>
+        <strong>{{ categories|length }}</strong>
+        <p>Expense and income groups available.</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">Page</span>
+        <strong>{% if page_obj %}{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}{% else %}1 / 1{% endif %}</strong>
+        <p>Current browsing position in the ledger.</p>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <p class="eyebrow">Filter Ledger</p>
+            <h2>Find the entries you need</h2>
+        </div>
+    </div>
+    <form method="get" class="filters">
+        <input type="search" name="q" placeholder="Search description..." value="{{ query.q }}">
+        <select name="category">
+            <option value="">All categories</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}" {% if query.category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="type">
+            <option value="">All types</option>
+            <option value="income" {% if query.type == 'income' %}selected{% endif %}>Income</option>
+            <option value="expense" {% if query.type == 'expense' %}selected{% endif %}>Expense</option>
+        </select>
+        <label>From <input type="date" name="from" value="{{ query.from }}"></label>
+        <label>To <input type="date" name="to" value="{{ query.to }}"></label>
+        <div class="filters__actions">
+            <button type="submit">Apply Filters</button>
+            <a class="button button-secondary" href="{% url 'finance_app:transaction_list' %}">Reset</a>
+        </div>
+    </form>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th class="right">Amount</th>
+                    <th class="right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in object_list %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td>
+                        <strong>{{ t.description }}</strong>
+                        <div class="row-subtitle">{% if t.is_income %}Income entry{% else %}Expense entry{% endif %}</div>
+                    </td>
+                    <td>{{ t.category|default:"Uncategorized" }}</td>
+                    <td class="right">
+                        <span class="amount-pill {% if t.is_income %}amount-pill--positive{% else %}amount-pill--negative{% endif %}">
+                            {% if t.is_income %}+{% else %}-{% endif %}{{ t.amount }}
+                        </span>
+                    </td>
+                    <td class="right table-actions">
+                        <a href="{% url 'finance_app:transaction_update' t.pk %}">Edit</a>
+                        <a href="{% url 'finance_app:transaction_delete' t.pk %}" class="danger-link">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">No transactions yet. Add your first entry to start tracking finances.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Next</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}
