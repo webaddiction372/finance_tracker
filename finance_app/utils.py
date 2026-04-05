@@ -8,31 +8,31 @@ def month_bounds(target: date):
     last = target.replace(day=monthrange(target.year, target.month)[1])
     return first, last
 
-def spending_by_category(target: date):
+def spending_by_category(user, target: date):
     start, end = month_bounds(target)
     qs = (Transaction.objects
-          .filter(date__range=(start, end), is_income=False)
+          .filter(user=user, date__range=(start, end), is_income=False)
           .values('category__name')
           .annotate(total=Sum('amount'))
           .order_by('-total'))
     return list(qs)
 
-def income_total(target: date):
+def income_total(user, target: date):
     start, end = month_bounds(target)
     return (Transaction.objects
-            .filter(date__range=(start, end), is_income=True)
+            .filter(user=user, date__range=(start, end), is_income=True)
             .aggregate(total=Sum('amount'))['total'] or 0)
 
-def expense_total(target: date):
+def expense_total(user, target: date):
     start, end = month_bounds(target)
     return (Transaction.objects
-            .filter(date__range=(start, end), is_income=False)
+            .filter(user=user, date__range=(start, end), is_income=False)
             .aggregate(total=Sum('amount'))['total'] or 0)
 
-def budget_usage(target: date):
+def budget_usage(user, target: date):
     start, end = month_bounds(target)
     spent = (Transaction.objects
-             .filter(date__range=(start, end), is_income=False)
+             .filter(user=user, date__range=(start, end), is_income=False)
              .values('category')
              .annotate(total=Sum('amount')))
     spent_map = {row['category']: row['total'] for row in spent}
