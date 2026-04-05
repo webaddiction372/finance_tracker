@@ -38,15 +38,15 @@ class BudgetAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction, site=finance_admin_site)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ("date", "description", "category", "entry_type", "amount_display")
-    list_filter = ("is_income", "category", "date")
-    search_fields = ("description", "category__name")
-    list_select_related = ("category",)
+    list_display = ("date", "description", "user", "category", "entry_type", "amount_display")
+    list_filter = ("is_income", "category", "date", "user")
+    search_fields = ("description", "category__name", "user__username", "user__email")
+    list_select_related = ("user", "category")
     date_hierarchy = "date"
     ordering = ("-date", "-id")
     readonly_fields = ("signed_amount_preview",)
     fieldsets = (
-        ("Transaction Details", {"fields": ("date", "description", "category")}),
+        ("Transaction Details", {"fields": ("user", "date", "description", "category")}),
         ("Financial Data", {"fields": ("amount", "is_income", "signed_amount_preview")}),
     )
 

@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+
+
+User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -25,6 +29,13 @@ class Budget(models.Model):
         return f"{self.category.name} - {self.month:%b %Y}: {self.amount}"
 
 class Transaction(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='transactions',
+        null=True,
+        blank=True,
+    )
     date = models.DateField(default=timezone.now)
     description = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')

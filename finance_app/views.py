@@ -40,7 +40,12 @@ class TransactionListView(LoginRequiredMixin, ListView):
     template_name = 'finance_app/transaction_list.html'
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related('category')
+        qs = (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user)
+            .select_related('category')
+        )
         q = self.request.GET.get('q')
         cat = self.request.GET.get('category')
         date_from = self.request.GET.get('from')
@@ -73,16 +78,26 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
     template_name = 'finance_app/transaction_form.html'
     success_url = reverse_lazy('finance_app:transaction_list')
 
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
 class TransactionUpdateView(LoginRequiredMixin, UpdateView):
     model = Transaction
     form_class = TransactionForm
     template_name = 'finance_app/transaction_form.html'
     success_url = reverse_lazy('finance_app:transaction_list')
 
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
 class TransactionDeleteView(LoginRequiredMixin, DeleteView):
     model = Transaction
     template_name = 'finance_app/transaction_confirm_delete.html'
     success_url = reverse_lazy('finance_app:transaction_list')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
 
 class ReportView(LoginRequiredMixin, TemplateView):
     template_name = 'finance_app/report.html'
@@ -95,15 +110,15 @@ class ReportView(LoginRequiredMixin, TemplateView):
         month = month if 1 <= month <= 12 else today.month
         year = year if 2000 <= year <= 2100 else today.year
         target = date(year, month, 1)
-        inc = income_total(target)
-        exp = expense_total(target)
+        inc = income_total(self.request.user, target)
+        exp = expense_total(self.request.user, target)
         ctx.update({
             'target': target,
-            'spending_by_category': spending_by_category(target),
+            'spending_by_category': spending_by_category(self.request.user, target),
             'income_total': inc,
             'expense_total': exp,
             'net_total': (inc or 0) - (exp or 0),
-            'budget_usage': budget_usage(target),
+            'budget_usage': budget_usage(self.request.user, target),
         })
         return ctx
 
